@@ -10,11 +10,11 @@ body {
     margin: 0;
 }
 
-#board>div {
+/* #board>div {
     margin: 4px 4px 4px 4px;
     padding: 4px 4px 4px 4px;
     background-color: grey;
-}
+} */
 
 #gameBoard {
     text-align: center;
@@ -46,15 +46,36 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 48px;
-    background-color: white;
+    background-color: grey;
     border: 2px solid black;
     cursor: pointer;
 }
 
-.ceel ::before {
+.cell ::before {
     content: "";
     display: block;
     padding-top: 100%;
+}
+
+
+.cell2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    background-color: purple;
+    border: 4px solid black;
+    cursor: pointer;
+}
+
+.cell3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    background-color: white;
+    border: 4px solid black;
+    cursor: pointer;
 }
 
 .btns {

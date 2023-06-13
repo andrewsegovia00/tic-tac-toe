@@ -11,19 +11,19 @@ const startGame = {
     setPlayerNames: setPlayerNames,
     initializeGame: initializeGame,
     renderBoard: renderBoard,
-
-
+    renderMessage: renderMessage,
+    renderControls: renderControls,
 }
 
 //Board colors
-const colors = {
-    null: 'black',
-    '1': 'grey', 
+const COLORS = {
+    '0': 'grey',
+    '1': 'white', 
     '-1': 'purple'
 };
 
 // Variables tracking state
-let board = [null, null, null, null, null, null, null, null, null];
+let board;
 let turn = 1;
 let winner = null; 
 
@@ -49,77 +49,127 @@ const winningCombinations = [
 ];
 
 function initializeGame() {
-    board = [null, null, null, null, null, null, null, null, null];
+    board = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ];
+    
     turn = 1;
     winner = null;
+    render();
 }
 
-function renderBoard() {
-    squares.forEach((square, index) => {
-    square.style.backgroundColor = colors[board[index]];
-    });  
+function render() {
+    renderBoard();
+    renderMessage();
+    renderControls();
+  }
 
+function renderBoard() {
+    board.forEach(function(colArr, colIdx) {
+        // Iterate over the cells in the cur column (colArr)
+        colArr.forEach(function(cellVal, rowIdx) {
+          const cellId = `c${colIdx}r${rowIdx}`;
+          const cellEl = document.getElementById(cellId);
+          cellEl.style.backgroundColor = COLORS[cellVal];
+        });
+      });
+    }
+
+function renderControls() {
+    // console.log('renderMessage Works')
+}
+function renderMessage() {
 //Need to hide and unhide once message pops up
     const message = document.getElementById('message');
 
-    if (winner !== null) {
-      if (winner === 'T') {
+    if (winner !== null) 
+    {
+      if (winner === 'T') 
+      {
         message.textContent = 'It\'s a tie!';
-      } else {
-        const player = winner === 1 ? 'X' : 'O';
+      } 
+      else if(winner === 'W')
+      {
+        const player = winner === 1 ? `${player1.name}` : `${player2.name}`;
         message.textContent = `Player ${player} wins!`;
       }
-    } else {
-      const player = turn === 1 ? 'X' : 'O';
-      message.textContent = `Current turn: Player ${player}`;
+      else if(winner === 'L')
+      {
+        const player = winner === 1 ? `${player1.name}` : `${player2.name}`;
+        message.textContent = `Player ${player} wins!`;
+      }
+      else
+      {
+          const player = turn === 1 ? `${player1.name}` : `${player2.name}`;
+          message.textContent = `Current turn: ${player1.name}`;
+      }
+    }
+    else
+    {
+        const player = turn === 1 ? `${player1.name}` : `${player2.name}`;
+        message.textContent = `Current turn: ${player1.name}`;
     }
 }
 
+
 function checkWin() {
-    for (let i = 0; i < winningCombinations.length; i++) 
-    {
-        const [comb1, comb2, comb3] = winningCombinations[i];
-        if (board[comb1] !== null && board[comb1] === board[comb2] && board[comb2] === board[comb3]) 
-        {
-            winner = board[comb1];
-            renderBoard();
-            break;
-        }
+    for (const combination of winningCombinations) {
+      const [comb1, comb2, comb3] = combination;
+      const cell1 = board[Math.floor(comb1 / 3)][comb1 % 3];
+      const cell2 = board[Math.floor(comb2 / 3)][comb2 % 3];
+      const cell3 = board[Math.floor(comb3 / 3)][comb3 % 3];
+  
+      if (cell1 !== 0 && cell1 === cell2 && cell2 === cell3) {
+        winner = cell1 === 1 ? 'W' : 'L';
+        renderBoard();
+        return; // Exit the function early if a winner is found
+      }
     }
-}  
+  
+    checkTie();
+}
+  
 
 function checkTie() {
-    if (!board.includes(null) && winner === null) 
+    if (board.includes('0') && winner === null) 
     {
       winner = 'T';
       renderBoard();
     }
+    console.log(turn);
 }
 
-function handleSquareClick(event) {
-    const squareIndex = parseInt(event.target.dataset.index);
-  
-    if (board[squareIndex] !== null || winner !== null) {
-      return; // Square is already taken or game is over
+function squareElClick(event) {
+    renderMessage();
+    const square = event.target;
+    // console.log(square)
+    square.classList.remove('cell');
+    square.classList.add('cell2');
+    const squareIndex = square.id;
+    console.log(squareIndex);
+    const columnNumber = parseInt(squareIndex.charAt(1));
+    const rowNumber = parseInt(squareIndex.charAt(3));
+
+    if (board[columnNumber][rowNumber] === 0 && turn === 1) 
+    {
+        board[columnNumber][rowNumber] = 1;
+        event.target.textContent = 'X';
     }
-    board[squareIndex] = turn;
+    else if(board[columnNumber][rowNumber] === 0 && turn === -1)
+    {
+        board[columnNumber][rowNumber] = -1;
+        event.target.textContent = 'O';
+    }
+    console.log(turn);
     renderBoard();
-  
     checkWin();
     checkTie();
   
     // Toggle the turn
     turn *= -1;
     
-}
-
-function squareClick(event) {
-    const squareIndex = parseInt(event.target.dataset.index);
-    if (board[squareIndex] === 0 && currentPlayer === 1) 
-    {
-        board[squareIndex] = 1;
-        event.target.textContent = 'X';
-    }
 }
 
 function setPlayerNames() {
@@ -203,8 +253,12 @@ function hideBoard() {
     //hides each div element
     boxes.forEach( e => {
         e.classList.remove('cell');
+        e.classList.remove('cell2');
+        e.classList.remove('cell3');
+        e.textContent = '';
         e.classList.add('hidden');
     })
+
 }
 
 function addBoard() {
@@ -226,13 +280,11 @@ function addBoard() {
     restBtn.classList.add('btns');
 }
 
-
 //Definition of the Init function that starts the game
 function init() {
     startGame.hideBoard();
     startGame.initializeGame();
     startGame.renderBoard();
-    
 }
 
 const replayButton = document.getElementById('restart');
@@ -243,8 +295,8 @@ replayButton.addEventListener('click', () => {
   startGame.setPlayerNames();
 });
 
-initializeGame();
-renderBoard();
+startGame.initializeGame();
+startGame.renderBoard();
 
 
 //Adds functionality to the Player 1 & Player 2 Form
@@ -253,6 +305,6 @@ startBtn.addEventListener('click', startGame.playerNames);
 
 startGame.hideBoard();
 
-squares.forEach((square) => {
-    square.addEventListener('click', handleSquareClick);
-  });
+boardOfSquares = document.querySelector('#board');
+boardOfSquares.addEventListener('click', squareElClick);
+console.log(turn);
