@@ -122,14 +122,15 @@ function checkWin() {
       const cell3 = board[Math.floor(comb3 / 3)][comb3 % 3];
   
       if (cell1 !== 0 && cell1 === cell2 && cell2 === cell3) {
-        winner = cell1 === 1 ? 'W' : 'L';
+        winner = cell1 === 1 ? 'W' : 'L'; // W for player 1 win, L for player 2 win
         renderBoard();
         return; // Exit the function early if a winner is found
       }
     }
   
-    checkTie();
-}
+    checkTie(); // Check for a tie if no winner is found
+  }
+  
   
 
 function checkTie() {
